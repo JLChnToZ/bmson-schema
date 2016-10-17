@@ -1,0 +1,356 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Bmson",
+  "type": "object",
+  "definitions": {
+    "Pulse": {
+      "description": "pulse number",
+      "type": "integer",
+      "minimum": 0
+    },
+    "NullableString": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "BmsonInfo": {
+      "description": "information, e.g. title, artist, …",
+      "type": "object",
+      "properties": {
+        "title": {
+          "$ref": "#/definitions/NullableString"
+        },
+        "subtitle": {
+          "$ref": "#/definitions/NullableString"
+        },
+        "artist": {
+          "$ref": "#/definitions/NullableString"
+        },
+        "subartists": {
+          "oneOf": [
+            {
+              "description": "[\"key:value\"]",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "genre": {
+          "$ref": "#/definitions/NullableString"
+        },
+        "mode_hint": {
+          "description": "layout hints, e.g. \"beat-7k\", \"popn-5k\", \"generic-nkeys\"",
+          "type": "string"
+        },
+        "chart_name": {
+          "oneOf": [
+            {
+              "description": "e.g. \"HYPER\", \"FOUR DIMENSIONS\"",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "init_bpm": {
+          "type": "number"
+        },
+        "judge_rank": {
+          "description": "relative judge width",
+          "type": "number"
+        },
+        "total": {
+          "description": "relative lifebar gain",
+          "type": "number"
+        },
+        "back_image": {
+          "allOf": [
+            {
+              "description": "background image filename"
+            },
+            {
+              "$ref": "#/definitions/NullableString"
+            }
+          ]
+        },
+        "eyecatch_image": {
+          "allOf": [
+            {
+              "description": "eyecatch image filename"
+            },
+            {
+              "$ref": "#/definitions/NullableString"
+            }
+          ]
+        },
+        "banner_image": {
+          "allOf": [
+            {
+              "description": "banner image filename"
+            },
+            {
+              "$ref": "#/definitions/NullableString"
+            }
+          ]
+        },
+        "preview_music": {
+          "allOf": [
+            {
+              "description": "preview music filename"
+            },
+            {
+              "$ref": "#/definitions/NullableString"
+            }
+          ]
+        },
+        "resolution": {
+          "description": "pulses per quarter note",
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "title",
+        "artist",
+        "genre",
+        "chart_name",
+        "level",
+        "init_bpm"
+      ]
+    },
+    "BarLine": {
+      "description": "bar-line event",
+      "type": "object",
+      "properties": {
+        "y": {
+          "$ref": "#/definitions/Pulse"
+        }
+      },
+      "required": [
+        "y"
+      ]
+    },
+    "BpmEvent": {
+      "description": "bpm note",
+      "type": "object",
+      "properties": {
+        "y": {
+          "$ref": "#/definitions/Pulse"
+        },
+        "bpm": {
+          "description": "bpm",
+          "type": "number"
+        }
+      },
+      "required": [
+        "y",
+        "bpm"
+      ]
+    },
+    "StopEvent": {
+      "description": "stop note",
+      "type": "object",
+      "properties": {
+        "y": {
+          "description": "pulse number",
+          "type": "integer",
+          "minimum": 0
+        },
+        "duration": {
+          "description": "stop duration (pulses to stop)",
+          "type": "number"
+        }
+      },
+      "required": [
+        "y",
+        "duration"
+      ]
+    },
+    "SoundChannel": {
+      "description": "sound channel",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "sound file name",
+          "type": "string"
+        },
+        "notes": {
+          "description": "notes using this sound",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Note"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "notes"
+      ]
+    },
+    "Note": {
+      "description": "sound note",
+      "type": "object",
+      "properties": {
+        "x": {
+          "description": "lane",
+          "type": "integer"
+        },
+        "y": {
+          "$ref": "#/definitions/Pulse"
+        },
+        "l": {
+          "description": "length (0: normal note; greater than zero (length in pulses): long note)",
+          "type": "integer",
+          "minimum": 0
+        },
+        "c": {
+          "description": "continuation flag",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "l",
+        "c"
+      ]
+    },
+    "BGA": {
+      "description": "bga data",
+      "type": "object",
+      "properties": {
+        "bga_header": {
+          "description": "picture id and filename",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BGAHeader"
+          }
+        },
+        "bga_events": {
+          "description": "picture sequence",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BGAEvent"
+          }
+        },
+        "layer_events": {
+          "description": "picture sequence overlays bga_notes",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BGAEvent"
+          }
+        },
+        "poor_events": {
+          "description": "picture sequence when missed",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BGAEvent"
+          }
+        }
+      },
+      "required": [
+        "bga_header",
+        "bga_events",
+        "layer_events",
+        "poor_events"
+      ]
+    },
+    "BGAHeader": {
+      "description": "picture file",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "description": "picture file name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "BGAEvent": {
+      "description": "bga note",
+      "type": "object",
+      "properties": {
+        "y": {
+          "$ref": "#/definitions/Pulse"
+        },
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "y",
+        "id"
+      ]
+    }
+  },
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "bmson version",
+      "pattern": "\\bv?(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*)?(?:\\+[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*)?\\b"
+    },
+    "info": {
+      "$ref": "#/definitions/BmsonInfo"
+    },
+    "lines": {
+      "description": "location of bar-lines in pulses",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BarLine"
+      }
+    },
+    "bpm_events": {
+      "description": "bpm changes",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BpmEvent"
+      }
+    },
+    "stop_events": {
+      "description": "stop events",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/StopEvent"
+      }
+    },
+    "sound_channels": {
+      "description": "note data",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SoundChannel"
+      }
+    },
+    "bga": {
+      "$ref": "#/definitions/BGA"
+    }
+  },
+  "required": [
+    "version",
+    "info",
+    "sound_channels",
+    "bga"
+  ]
+}
